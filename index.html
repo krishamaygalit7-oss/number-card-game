@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#09152d" />
+  <title>MATHLOCK — Crack the Code</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --navy: #09152d;
+      --panel: #132546;
+      --panel-light: #1b3156;
+      --gold: #ffd35a;
+      --cream: #fff8e9;
+      --muted: #a9bad4;
+      --red: #ef5262;
+      --blue: #4285f4;
+      --green: #63dfa2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--cream);
+      font-family: Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at 50% -20%, #254477 0, transparent 56%),
+        radial-gradient(circle at 8% 85%, #142849 0, transparent 35%),
+        var(--navy);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(1050px, 100%);
+      min-height: 100vh;
+      margin: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+    }
+
+    .brand {
+      font-weight: 1000;
+      letter-spacing: .13em;
+      color: var(--gold);
+      font-size: 1.15rem;
+    }
+
+    .icon-button, .secondary-button {
+      border: 1px solid #53698d;
+      border-radius: 12px;
+      background: #152746;
+      color: var(--cream);
+      padding: 10px 15px;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .icon-button:hover, .secondary-button:hover {
+      transform: translateY(-2px);
+      background: #20375e;
+    }
+
+    main { flex: 1; display: grid; place-items: center; }
+
+    .screen { display: none; width: 100%; animation: appear .35s ease both; }
+    .screen.active { display: block; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-screen, .difficulty-screen, .howto-screen {
+      max-width: 700px;
+      margin: 36px auto;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-weight: 800;
+      font-size: .78rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      font-size: clamp(3.5rem, 11vw, 6.6rem);
+      line-height: .96;
+      letter-spacing: .055em;
+      color: var(--cream);
+      text-shadow: 0 7px 0 #172849, 0 12px 30px #0008;
+    }
+
+    .subtitle {
+      margin: 17px 0 26px;
+      color: var(--gold);
+      letter-spacing: .14em;
+      font-size: clamp(.85rem, 2.5vw, 1.05rem);
+      font-weight: 900;
+    }
+
+    .lock-art {
+      width: 185px;
+      height: 185px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 27px;
+      border: 2px solid #627ba4;
+      border-radius: 32px;
+      background: linear-gradient(145deg, #20385f, #101e39);
+      box-shadow: 0 18px 38px #0006, inset 0 1px #ffffff22;
+      font-size: 6.5rem;
+      transform: rotate(-4deg);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    .menu-copy {
+      max-width: 520px;
+      margin: 0 auto 26px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .primary-button {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 28px;
+      background: var(--gold);
+      color: #17213a;
+      font-weight: 1000;
+      letter-spacing: .07em;
+      box-shadow: 0 5px 0 #bd8c29, 0 12px 25px #0004;
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 #bd8c29, 0 15px 26px #0005;
+      filter: brightness(1.05);
+    }
+
+    .primary-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #bd8c29;
+    }
+
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 28px 0;
+      text-align: left;
+    }
+
+    .mode-card {
+      min-height: 220px;
+      padding: 23px;
+      border: 1px solid #52698f;
+      border-radius: 20px;
+      color: var(--cream);
+      background: linear-gradient(145deg, #1d3459, #12223e);
+      box-shadow: 0 14px 30px #0003;
+      transition: transform .18s, border-color .18s;
+    }
+
+    .mode-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+    .mode-card h3 { margin: 0 0 8px; color: var(--gold); font-size: 1.35rem; }
+    .mode-card p { color: var(--muted); line-height: 1.55; }
+    .mode-card strong { display: block; margin-top: 16px; color: var(--cream); }
+
+    .howto-panel {
+      margin: 24px auto;
+      padding: 26px;
+      text-align: left;
+      border: 1px solid #40577c;
+      border-radius: 20px;
+      background: #132546;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .howto-panel b { color: var(--cream); }
+    .howto-panel li { margin: 8px 0; }
+
+    .game-screen { max-width: 850px; margin: 0 auto; }
+
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 8px 0 16px;
+      flex-wrap: wrap;
+    }
+
+    .mode-pill, .score-pill {
+      padding: 9px 14px;
+      border: 1px solid #53698d;
+      border-radius: 999px;
+      background: #142746;
+      font-weight: 800;
+    }
+
+    .mode-pill { color: var(--gold); }
+    .score-pill { color: var(--cream); }
+    .score-pill span { color: var(--gold); }
+
+    .mystery-panel {
+      padding: 19px 22px 22px;
+      border: 1px solid #546b90;
+      border-radius: 21px;
+      background: linear-gradient(145deg, #1b3155, #12213d);
+      box-shadow: 0 12px 26px #0003;
+    }
+
+    .mystery-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .category {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #2b4165;
+      color: var(--gold);
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-weight: 900;
+    }
+
+    .clue { margin: 13px 0 16px; font-size: 1.07rem; }
+    .clue strong { color: var(--cream); }
+
+    .letter-slots {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      min-height: 43px;
+    }
+
+    .letter-slot {
+      width: 35px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-bottom: 3px solid #8397b8;
+      color: var(--gold);
+      font-size: 1.35rem;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .letter-slot.revealed { animation: flip .36s ease both; }
+    @keyframes flip {
+      0% { transform: rotateX(90deg); opacity: .2; }
+      100% { transform: rotateX(0); opacity: 1; }
+    }
+
+    .progress-copy { margin-top: 12px; color: var(--muted); text-align: center; font-size: .86rem; }
+
+    .question-card {
+      margin: 18px 0 14px;
+      padding: 22px;
+      border: 2px solid #fff;
+      border-radius: 22px;
+      background: var(--cream);
+      color: #14213b;
+      box-shadow: 0 10px 0 #a9b5c5, 0 18px 32px #0004;
+      text-align: center;
+    }
+
+    .question-label {
+      color: #576986;
+      font-size: .74rem;
+      letter-spacing: .15em;
+      font-weight: 1000;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      margin: 10px 0 0;
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 900;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+      margin: 20px 0 16px;
+    }
+
+    .answer-card {
+      position: relative;
+      min-height: 92px;
+      overflow: hidden;
+      border: 4px solid #fff;
+      border-radius: 19px;
+      color: #fff;
+      font-size: clamp(1.55rem, 5vw, 2.15rem);
+      font-weight: 1000;
+      text-shadow: 0 2px 3px #0003;
+      box-shadow: 0 7px 0 #0004, 0 13px 18px #0003;
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+
+    .answer-card:nth-child(odd) { transform: rotate(-1.4deg); }
+    .answer-card:nth-child(even) { transform: rotate(1.4deg); }
+    .answer-card.red { background: linear-gradient(145deg, #fa6874, #d93448); }
+    .answer-card.blue { background: linear-gradient(145deg, #5799ff, #2d66d2); }
+
+    .answer-card:hover:not(:disabled) {
+      transform: translateY(-5px) rotate(0);
+      filter: brightness(1.12);
+      box-shadow: 0 11px 0 #0004, 0 18px 22px #0004;
+    }
+
+    .answer-card:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+    .answer-card:disabled { cursor: default; opacity: .75; }
+    .answer-card.correct { background: linear-gradient(145deg, #71e9ac, #28ae74); }
+    .answer-card.wrong { background: linear-gradient(145deg, #8b98aa, #626f82); }
+
+    .feedback {
+      min-height: 28px;
+      margin: 9px 0;
+      color: var(--gold);
+      font-weight: 800;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .feedback.success { color: var(--green); }
+    .feedback.error { color: #ff9aa4; }
+
+    .guess-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+      padding: 14px;
+      border: 1px solid #42597f;
+      border-radius: 17px;
+      background: #10203b;
+    }
+
+    .guess-panel label {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: .89rem;
+    }
+
+    .guess-panel input {
+      min-width: 0;
+      padding: 12px 13px;
+      border: 1px solid #677b9d;
+      border-radius: 10px;
+      outline: none;
+      color: var(--cream);
+      background: #09172e;
+      text-transform: uppercase;
+    }
+
+    .guess-panel input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px #ffd35a33; }
+    .guess-panel .primary-button { padding: 11px 17px; }
+
+    .explanation {
+      display: none;
+      margin: 13px 0 0;
+      padding: 13px 15px;
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      color: #d7e5f4;
+      background: #142746;
+      line-height: 1.5;
+    }
+    .explanation.show { display: block; animation: appear .25s ease both; }
+
+    .end-panel {
+      display: none;
+      margin: 18px 0;
+      padding: 26px;
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      background: #152746;
+      text-align: center;
+    }
+
+    .end-panel.show { display: block; }
+    .end-panel h2 { color: var(--gold); margin-top: 0; }
+    .end-panel p { color: var(--muted); line-height: 1.6; }
+
+    .footer-note {
+      margin-top: 15px;
+      color: #7f92b0;
+      text-align: center;
+      font-size: .78rem;
+    }
+
+    @media (max-width: 600px) {
+      .app { padding: 15px; }
+      .difficulty-grid { grid-template-columns: 1fr; }
+      .mode-card { min-height: unset; }
+      .answer-grid { gap: 10px; }
+      .answer-card { min-height: 78px; border-width: 3px; border-radius: 16px; }
+      .mystery-panel { padding: 16px; }
+      .letter-slot { width: 29px; }
+      .question-card { padding: 18px 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">MATHLOCK</div>
+      <button class="icon-button" id="headerHowTo" type="button">How to play</button>
+    </header>
+
+    <main>
+      <section class="screen active menu-screen" id="menuScreen">
+        <div class="eyebrow">The math mystery card game</div>
+        <h1>MATHLOCK</h1>
+        <div class="subtitle">CRACK THE CODE. UNLOCK THE MYSTERY.</div>
+        <div class="lock-art" aria-hidden="true">🔐</div>
+        <p class="menu-copy">
+          Solve the math. Reveal scrambled letters. Use the clue—and your instincts—to
+          crack the mystery word before the final card turns.
+        </p>
+        <div class="button-row">
+          <button class="primary-button" id="playButton" type="button">▶ &nbsp; PLAY</button>
+          <button class="secondary-button" id="howToButton" type="button">HOW TO PLAY</button>
+        </div>
+      </section>
+
+      <section class="screen difficulty-screen" id="difficultyScreen">
+        <div class="eyebrow">Choose your challenge</div>
+        <h2>Pick a difficulty</h2>
+        <p class="menu-copy">Every correct answer earns points and unlocks one letter.</p>
+        <div class="difficulty-grid">
+          <button class="mode-card" data-mode="basic" type="button">
+            <h3>🟦 Basic Mode</h3>
+            <p>Addition, subtraction, multiplication, division, fractions, percentages,
+              patterns, divisibility, and order of operations.</p>
+            <strong>100 points per correct answer</strong>
+          </button>
+          <button class="mode-card" data-mode="hard" type="button">
+            <h3>🟥 Hard Mode</h3>
+            <p>Exponents, GCF, LCM, integers, algebra, probability, fractions,
+              combinations, permutations, and multi-step expressions.</p>
+            <strong>180 points per correct answer</strong>
+          </button>
+        </div>
+        <button class="secondary-button" id="difficultyBack" type="button">← Back to menu</button>
+      </section>
+
+      <section class="screen howto-screen" id="howToScreen">
+        <div class="eyebrow">A quick briefing</div>
+        <h2>How to play</h2>
+        <div class="howto-panel">
+          <ol>
+            <li><b>Choose Basic or Hard mode.</b> Hard questions award more points.</li>
+            <li><b>Solve the math card.</b> Pick the one correct answer from the four cards.</li>
+            <li><b>Unlock a letter.</b> Each correct answer reveals exactly one letter, in a scrambled position—not left to right.</li>
+            <li><b>Use the clue.</b> Letters and category clues help you identify the mystery word.</li>
+            <li><b>Guess whenever you want.</b> You can enter a word before any letters are revealed. A wrong guess costs points, but the game continues.</li>
+            <li><b>Keep solving.</b> After each correct answer, a new randomly generated question appears. Mystery words do not repeat until the collection has been used.</li>
+          </ol>
+          <p>Answer cards use number values; decimals are shown to at most two places.</p>
+        </div>
+        <button class="primary-button" id="howToBack" type="button">GOT IT</button>
+      </section>
+
+      <section class="screen game-screen" id="gameScreen">
+        <div class="game-header">
+          <button class="secondary-button" id="quitButton" type="button">← Menu</button>
+          <div class="mode-pill" id="modeLabel">BASIC MODE</div>
+          <div class="score-pill">Score: <span id="scoreLabel">0</span></div>
+        </div>
+
+        <div class="mystery-panel">
+          <div class="mystery-top">
+            <span>🔎 MYSTERY WORD</span>
+            <span class="category" id="categoryLabel"></span>
+          </div>
+          <div class="clue"><strong>Clue:</strong> <span id="clueLabel"></span></div>
+          <div class="letter-slots" id="letterSlots" aria-label="Mystery word letters"></div>
+          <div class="progress-copy" id="progressLabel"></div>
+        </div>
+
+        <div id="questionArea">
+          <div class="question-card">
+            <div class="question-label">Solve to unlock a letter</div>
+            <div class="question-text" id="questionText"></div>
+          </div>
+          <div class="answer-grid" id="answerGrid"></div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+          <div class="explanation" id="explanation"></div>
+        </div>
+
+        <div class="guess-panel" id="guessPanel">
+          <label for="guessInput">Think you know the word? You can guess at any time—even with no letters revealed.</label>
+          <input id="guessInput" type="text" autocomplete="off" placeholder="Type your guess…" maxlength="24" />
+          <button class="primary-button" id="guessButton" type="button">GUESS</button>
+        </div>
+
+        <div class="end-panel" id="endPanel">
+          <h2 id="endTitle">Mystery solved!</h2>
+          <p id="endCopy"></p>
+          <div class="button-row">
+            <button class="primary-button" id="nextWordButton" type="button">NEXT MYSTERY</button>
+            <button class="secondary-button" id="endMenuButton" type="button">MAIN MENU</button>
+          </div>
+        </div>
+
+        <div class="footer-note">Think carefully—every answer is a new chance to crack the code.</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    "use strict";
+
+    const WORDS = [
+      { word: "VOLCANO", clue: "A mountain that can erupt with lava.", category: "Nature" },
+      { word: "LIBRARY", clue: "A place where you can borrow books.", category: "Education" },
+      { word: "KEYBOARD", clue: "A device used to type on a computer.", category: "Technology" },
+      { word: "BASKETBALL", clue: "A sport played by shooting a ball through a hoop.", category: "Sports" },
+      { word: "COMPASS", clue: "A tool that helps you find direction.", category: "Objects" },
+      { word: "RAINBOW", clue: "A colorful arc that can appear after rain.", category: "Nature" },
+      { word: "PLANET", clue: "A large celestial body that orbits a star.", category: "Science" },
+      { word: "AIRPORT", clue: "A place where passenger planes take off and land.", category: "Places" },
+      { word: "NOTEBOOK", clue: "A book of blank or lined pages for writing.", category: "Everyday life" },
+      { word: "TELESCOPE", clue: "An instrument used to observe distant objects in space.", category: "Science" },
+      { word: "PYRAMID", clue: "A monument shape with triangular sides and a square base.", category: "Places" },
+      { word: "BICYCLE", clue: "A two-wheeled vehicle powered by pedaling.", category: "Everyday life" },
+      { word: "SATELLITE", clue: "An object that orbits a planet; some help with communication.", category: "Technology" },
+      { word: "FOOTBALL", clue: "A team sport played with a ball and goalposts.", category: "Sports" },
+      { word: "WATERFALL", clue: "Water that drops over a steep edge in a river.", category: "Nature" },
+      { word: "MICROSCOPE", clue: "An instrument that makes very small things look larger.", category: "Science" },
+      { word: "BACKPACK", clue: "A bag carried on your back, often used for school.", category: "Objects" },
+      { word: "STADIUM", clue: "A large venue where sports and other events are held.", category: "Places" },
+      { word: "FIREWORKS", clue: "Bright, colorful displays often seen in the night sky at celebrations.", category: "Everyday life" },
+      { word: "FRACTION", clue: "A number that represents part of a whole.", category: "Education" }
+    ];
+
+    const $ = (selector) => document.querySelector(selector);
+    const screens = [...document.querySelectorAll(".screen")];
+
+    let mode = "basic";
+    let score = 0;
+    let currentWord = null;
+    let revealed = new Set();
+    let revealOrder = [];
+    let question = null;
+    let questionLocked = false;
+    let previousQuestion = "";
+    let wordDeck = [];
+    let lastWord = "";
+    let roundBonus = 0;
+
+    function showScreen(id) {
+      screens.forEach((screen) => screen.classList.toggle("active", screen.id === id));
+    }
+
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function pick(list) {
+      return list[rand(0, list.length - 1)];
+    }
+
+    function formatNumber(value) {
+      const rounded = Math.round((value + Number.EPSILON) * 100) / 100;
+      return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+    }
+
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b) [a, b] = [b, a % b];
+      return a;
+    }
+
+    function lcm(a, b) {
+      return Math.abs(a * b) / gcd(a, b);
+    }
+
+    function factorial(n) {
+      let result = 1;
+      for (let i = 2; i <= n; i++) result *= i;
+      return result;
+    }
+
+    function makeQuestion(prompt, answer, explanation, distractors) {
+      const correct = formatNumber(answer);
+      const options = new Set([correct]);
+
+      if (distractors) {
+        distractors.forEach((value) => options.add(formatNumber(value)));
+      }
+
+      const step = Number.isInteger(answer) ? 1 : 0.1;
+      const offsets = [1, -1, 2, -2, 3, -3, 5, -5, 0.5, -0.5, 10, -10];
+      for (const offset of offsets) {
+        if (options.size >= 4) break;
+        options.add(formatNumber(answer + offset * step));
+      }
+
+      let fallback = 1;
+      while (options.size < 4) {
+        options.add(formatNumber(answer + fallback * step));
+        fallback++;
+      }
+
+      return {
+        prompt,
+        answer: correct,
+        explanation,
+        options: [...options].slice(0, 4).sort(() => Math.random() - 0.5)
+      };
+    }
+
+    function basicQuestion() {
+      const topic = rand(0, 8);
+
+      switch (topic) {
+        case 0: {
+          const a = rand(12, 95), b = rand(8, 87), answer = a + b;
+          return makeQuestion(`${a} + ${b} = ?`, answer, `Add the numbers: ${a} + ${b} = ${answer}.`);
+        }
+        case 1: {
+          const a = rand(30, 120), b = rand(5, a - 1), answer = a - b;
+          return makeQuestion(`${a} − ${b} = ?`, answer, `Subtract ${b} from ${a}: ${a} − ${b} = ${answer}.`);
+        }
+        case 2: {
+          const a = rand(3, 12), b = rand(3, 12), answer = a * b;
+          return makeQuestion(`${a} × ${b} = ?`, answer, `Multiply: ${a} × ${b} = ${answer}.`);
+        }
+        case 3: {
+          const divisor = rand(2, 12), answer = rand(3, 15), dividend = divisor * answer;
+          return makeQuestion(`${dividend} ÷ ${divisor} = ?`, answer, `${dividend} divided by ${divisor} equals ${answer}, because ${answer} × ${divisor} = ${dividend}.`);
+        }
+        case 4: {
+          const a = rand(2, 9), b = rand(2, 9), c = rand(2, 15), answer = a + b * c;
+          return makeQuestion(`${a} + ${b} × ${c} = ?`, answer, `Multiply first: ${b} × ${c} = ${b * c}; then add ${a}. The answer is ${answer}.`);
+        }
+        case 5: {
+          const start = rand(2, 20), step = rand(2, 9), values = [start, start + step, start + 2 * step, start + 3 * step];
+          return makeQuestion(`Find the next number: ${values.join(", ")}, __`, start + 4 * step, `The pattern adds ${step} each time, so the next number is ${start + 4 * step}.`);
+        }
+        case 6: {
+          const n = pick([24, 30, 36, 42, 48, 54, 60]);
+          const d = pick([2, 3, 5, 6, 9, 10]);
+          const answer = n % d === 0 ? 1 : 0;
+          return makeQuestion(`Is ${n} divisible by ${d}? (Yes = 1, No = 0)`, answer,
+            `${n} ${answer ? "is" : "is not"} divisible by ${d}; ${answer ? `${n} ÷ ${d} = ${n / d}` : `the division does not give a whole number`}.`);
+        }
+        case 7: {
+          const denominator = pick([2, 3, 4, 5, 6, 8]);
+          const numerator = rand(1, denominator - 1);
+          const answer = numerator / denominator;
+          return makeQuestion(`What is ${numerator}/${denominator} as a decimal?`, answer,
+            `Divide the numerator by the denominator: ${numerator} ÷ ${denominator} = ${formatNumber(answer)}.`);
+        }
+        default: {
+          const percent = pick([10, 20, 25, 30, 40, 50, 75]);
+          const whole = pick([40, 60, 80, 100, 120, 200]);
+          const answer = percent / 100 * whole;
+          return makeQuestion(`What is ${percent}% of ${whole}?`, answer,
+            `${percent}% = ${percent / 100}. Multiply: ${percent / 100} × ${whole} = ${formatNumber(answer)}.`);
+        }
+      }
+    }
+
+    function hardQuestion() {
+      const topic = rand(0, 8);
+
+      switch (topic) {
+        case 0: {
+          const a = rand(2, 8), b = rand(2, 6), c = rand(2, 9), d = rand(4, 18);
+          const answer = a + b ** 2 - c + d;
+          return makeQuestion(`${a} + ${b}² − ${c} + ${d} = ?`, answer,
+            `Evaluate the exponent first: ${b}² = ${b ** 2}. Then ${a} + ${b ** 2} − ${c} + ${d} = ${answer}.`);
+        }
+        case 1: {
+          const a = rand(18, 72), b = rand(12, 60), answer = gcd(a, b);
+          return makeQuestion(`Find the GCF of ${a} and ${b}.`, answer,
+            `The greatest common factor of ${a} and ${b} is ${answer}; it is the largest integer that divides both.`);
+        }
+        case 2: {
+          const a = rand(3, 14), b = rand(4, 16), answer = lcm(a, b);
+          return makeQuestion(`Find the LCM of ${a} and ${b}.`, answer,
+            `The least common multiple of ${a} and ${b} is ${answer}, the smallest positive number divisible by both.`);
+        }
+        case 3: {
+          const a = rand(2, 8), b = rand(2, 8), c = rand(2, 8), d = rand(2, 8);
+          const answer = a / b + c / d;
+          return makeQuestion(`${a}/${b} + ${c}/${d} = ? (decimal)`, answer,
+            `Convert each fraction to a decimal and add: ${formatNumber(a / b)} + ${formatNumber(c / d)} = ${formatNumber(answer)}.`);
+        }
+        case 4: {
+          const a = rand(-12, 12), b = rand(-12, 12), answer = a - b;
+          return makeQuestion(`${a} − (${b}) = ?`, answer,
+            `Subtracting a number is adding its opposite: ${a} + (${ -b }) = ${answer}.`);
+        }
+        case 5: {
+          const x = rand(2, 15), a = rand(2, 9), b = rand(1, 15), result = a * x + b;
+          return makeQuestion(`Solve for x: ${a}x + ${b} = ${result}`, x,
+            `Subtract ${b}: ${a}x = ${result - b}. Divide by ${a}: x = ${x}.`);
+        }
+        case 6: {
+          const red = rand(1, 5), blue = rand(1, 5), total = red + blue;
+          const answer = red / total;
+          return makeQuestion(`A bag has ${red} red and ${blue} blue counters. What is P(red)? (decimal)`, answer,
+            `Probability = favorable outcomes ÷ total outcomes = ${red}/${total} = ${formatNumber(answer)}.`);
+        }
+        case 7: {
+          const n = rand(5, 9), r = rand(2, Math.min(4, n - 1));
+          const answer = factorial(n) / factorial(n - r);
+          return makeQuestion(`How many ways can ${r} of ${n} finalists take 1st, 2nd, …, ${r}th place?`, answer,
+            `Order matters, so use permutations: ${n}P${r} = ${n}!/(${n}−${r})! = ${answer}.`);
+        }
+        default: {
+          const n = rand(5, 10), r = rand(2, Math.min(4, n - 1));
+          const answer = factorial(n) / (factorial(r) * factorial(n - r));
+          return makeQuestion(`How many groups of ${r} can be chosen from ${n} students?`, answer,
+            `Order does not matter, so use combinations: C(${n}, ${r}) = ${n}!/(${r}!(${n}−${r})!) = ${answer}.`);
+        }
+      }
+    }
+
+    function nextQuestion() {
+      const generator = mode === "basic" ? basicQuestion : hardQuestion;
+      let next = generator();
+      for (let i = 0; i < 12 && next.prompt === previousQuestion; i++) next = generator();
+      previousQuestion = next.prompt;
+      question = next;
+      questionLocked = false;
+
+      $("#questionText").textContent = question.prompt;
+      $("#feedback").textContent = "";
+      $("#feedback").className = "feedback";
+      $("#explanation").textContent = "";
+      $("#explanation").classList.remove("show");
+
+      const grid = $("#answerGrid");
+      grid.replaceChildren();
+      question.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `answer-card ${index % 2 === 0 ? "red" : "blue"}`;
+        button.textContent = option;
+        button.setAttribute("aria-label", `Answer ${option}`);
+        button.addEventListener("click", () => chooseAnswer(button, option));
+        grid.append(button);
+      });
+    }
+
+    function shuffled(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = rand(0, i);
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function takeWord() {
+      if (!wordDeck.length) {
+        wordDeck = shuffled(WORDS);
+        if (wordDeck.length > 1 && wordDeck[wordDeck.length - 1].word === lastWord) {
+          [wordDeck[0], wordDeck[wordDeck.length - 1]] = [wordDeck[wordDeck.length - 1], wordDeck[0]];
+        }
+      }
+      const selected = wordDeck.pop();
+      lastWord = selected.word;
+      return selected;
+    }
+
+    function startRound() {
+      currentWord = takeWord();
+      revealed = new Set();
+      revealOrder = shuffled([...currentWord.word].map((_, index) => index));
+      roundBonus = 0;
+
+      $("#categoryLabel").textContent = currentWord.category;
+      $("#clueLabel").textContent = currentWord.clue;
+      $("#guessInput").value = "";
+      $("#guessPanel").style.display = "grid";
+      $("#endPanel").classList.remove("show");
+      $("#questionArea").style.display = "block";
+      updateSlots();
+      nextQuestion();
+    }
+
+    function updateSlots(newIndex = -1) {
+      const slots = $("#letterSlots");
+      slots.replaceChildren();
+      [...currentWord.word].forEach((letter, index) => {
+        const slot = document.createElement("span");
+        slot.className = `letter-slot${revealed.has(index) ? " revealed" : ""}`;
+        slot.textContent = revealed.has(index) ? letter : "";
+        slot.setAttribute("aria-label", revealed.has(index) ? `Letter ${letter}` : "Hidden letter");
+        slots.append(slot);
+      });
+
+      const remaining = currentWord.word.length - revealed.size;
+      $("#progressLabel").textContent = remaining > 0
+        ? `${revealed.size} of ${currentWord.word.length} letters unlocked · Positions reveal in scrambled order`
+        : "All letters unlocked—make your guess!";
+      if (newIndex >= 0) {
+        const newSlot = slots.children[newIndex];
+        if (newSlot) newSlot.classList.add("revealed");
+      }
+    }
+
+    function setScore(amount) {
+      score = Math.max(0, score + amount);
+      $("#scoreLabel").textContent = score.toLocaleString();
+    }
+
+    function chooseAnswer(button, answer) {
+      if (questionLocked) return;
+      questionLocked = true;
+
+      const buttons = [...$("#answerGrid").children];
+      buttons.forEach((card) => card.disabled = true);
+
+      if (answer === question.answer) {
+        button.classList.add("correct");
+        const points = mode === "basic" ? 100 : 180;
+        setScore(points);
+        roundBonus += points;
+
+        const index = revealOrder.find((position) => !revealed.has(position));
+        if (index !== undefined) revealed.add(index);
+        updateSlots(index);
+
+        $("#feedback").textContent = `Correct! +${points} points — one letter unlocked.`;
+        $("#feedback").className = "feedback success";
+        $("#explanation").textContent = question.explanation;
+        $("#explanation").classList.add("show");
+
+        if (revealed.size === currentWord.word.length) {
+          $("#feedback").textContent = "Every letter is unlocked. Can you crack the word?";
+        }
+
+        window.setTimeout(() => {
+          if (revealed.size === currentWord.word.length) {
+            $("#questionText").textContent = "All letters are revealed. Make your mystery-word guess!";
+            $("#answerGrid").replaceChildren();
+            $("#feedback").textContent = "Use the clue and letters to solve the mystery.";
+            $("#feedback").className = "feedback";
+            $("#explanation").classList.remove("show");
+            questionLocked = true;
+          } else {
+            nextQuestion();
+          }
+        }, 1150);
+      } else {
+        button.classList.add("wrong");
+        const penalty = mode === "basic" ? 15 : 25;
+        setScore(-penalty);
+        $("#feedback").textContent = `Not quite. −${penalty} points. Study the explanation and try a fresh question.`;
+        $("#feedback").className = "feedback error";
+        $("#explanation").textContent = question.explanation;
+        $("#explanation").classList.add("show");
+
+        window.setTimeout(nextQuestion, 1450);
+      }
+    }
+
+    function submitGuess() {
+      const guess = $("#guessInput").value.trim().toUpperCase().replace(/[^A-Z]/g, "");
+      if (!guess) {
+        $("#feedback").textContent = "Type a word before submitting your guess.";
+        $("#feedback").className = "feedback error";
+        $("#guessInput").focus();
+        return;
+      }
+
+      if (guess === currentWord.word) {
+        const bonus = 250 + (currentWord.word.length - revealed.size) * 40;
+        setScore(bonus);
+        $("#guessPanel").style.display = "none";
+        $("#questionArea").style.display = "none";
+        $("#endPanel").classList.add("show");
+        $("#endTitle").textContent = "🔓 Mystery solved!";
+        $("#endCopy").textContent =
+          `The word was ${currentWord.word}. ${revealed.size === 0
+            ? "You solved it without unlocking a single letter—impressive!"
+            : `You unlocked ${revealed.size} of ${currentWord.word.length} letters.`} ` +
+          `You earned a ${bonus}-point solve bonus.`;
+      } else {
+        const penalty = mode === "basic" ? 50 : 80;
+        setScore(-penalty);
+        $("#guessInput").value = "";
+        $("#feedback").textContent = `That isn't it yet. −${penalty} points. You can guess again whenever you're ready.`;
+        $("#feedback").className = "feedback error";
+        $("#guessInput").focus();
+      }
+    }
+
+    function startGame(selectedMode) {
+      mode = selectedMode;
+      score = 0;
+      previousQuestion = "";
+      $("#scoreLabel").textContent = "0";
+      $("#modeLabel").textContent = mode === "basic" ? "🟦 BASIC MODE" : "🟥 HARD MODE";
+      showScreen("gameScreen");
+      startRound();
+    }
+
+    $("#playButton").addEventListener("click", () => showScreen("difficultyScreen"));
+    $("#howToButton").addEventListener("click", () => showScreen("howToScreen"));
+    $("#headerHowTo").addEventListener("click", () => showScreen("howToScreen"));
+    $("#difficultyBack").addEventListener("click", () => showScreen("menuScreen"));
+    $("#howToBack").addEventListener("click", () => showScreen("menuScreen"));
+    $("#quitButton").addEventListener("click", () => showScreen("menuScreen"));
+    $("#endMenuButton").addEventListener("click", () => showScreen("menuScreen"));
+    $("#nextWordButton").addEventListener("click", startRound);
+    $("#guessButton").addEventListener("click", submitGuess);
+    $("#guessInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") submitGuess();
+    });
+
+    document.querySelectorAll(".mode-card").forEach((button) => {
+      button.addEventListener("click", () => startGame(button.dataset.mode));
+    });
+  </script>
+</body>
+</html>
